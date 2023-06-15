@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Core.Entities
+namespace EventManagementApp.Dtos
 {
-    public class TicketPurchase : BaseEntity
+    public class TicketPurchasePostDTO
     {
         [Required]
 
@@ -11,15 +10,7 @@ namespace Core.Entities
         public DateTime PurchaseDate { get; set; }
         [MinLength(10)]
         public string PurchaseDetailes { get; set; }
-
-        [ForeignKey("TicketId")]
         public int TicketId { get; set; }
-
-        public Ticket Ticket { get; set; }
-
-        public int? UserID {get;set;}
-        
-       
-        
+        public int? UserId { get; set; }
     }
 }
