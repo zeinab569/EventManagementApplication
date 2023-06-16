@@ -23,7 +23,7 @@ namespace EventManagementApp.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllEvents()
         {
-            var eventsList = (List<Event>)await _eventRepo.GetAllAsync();
+            var eventsList = (List<Event>)await _eventRepo.GetListAsync();
             var eventDTOs = _mapper.Map<List<EventDTO>>(eventsList);
 
             if (eventDTOs.Count == 0) return NotFound();

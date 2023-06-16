@@ -16,9 +16,9 @@ namespace EventManagementApp.Helpers
                 .ForMember(e => e.Gallaries, e => e.MapFrom(e => e.Gallaries.Select(s => s.Photo)));
             //.ForMember(e => e.Venue, e => e.MapFrom(e => e.Venue.VenueName))
 
-            CreateMap<AddEventDTO, Event>()
-                .ForPath(e => e.Sponsors.Select(s => s.Id), e => e.MapFrom(e => e.Sponsors))
-                .ForPath(e => e.Speakers.Select(s => s.Id), e => e.MapFrom(e => e.Speakers));
+            CreateMap<AddEventDTO, Event>();
+            //.ForPath(e => e.Sponsors.Select(s => s.Id), e => e.MapFrom(e => e.Sponsors))
+            //.ForPath(e => e.Speakers.Select(s => s.Id), e => e.MapFrom(e => e.Speakers));
 
         }
     }
