@@ -7,9 +7,9 @@
         public DateTime EventDate { get; set; }
         public DateTime EventTime { get; set; }
         public string EventImage { get; set; }
-        public List<string> Sponsors { get; set; } = new List<string>();
-        public List<string> Speakers { get; set; } = new List<string>();
-        public List<string> Gallaries { get; set; } = new List<string>();
-        public List<string> EventSchedules { get; set; } = new List<string>();
+        public List<int> Sponsors { get; set; } = new List<int>();
+        public List<int> Speakers { get; set; } = new List<int>();
+        public List<int> Gallaries { get; set; } = new List<int>();
+        public List<int> EventSchedules { get; set; } = new List<int>();
     }
 }

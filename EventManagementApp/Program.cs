@@ -70,6 +70,8 @@ namespace EventManagementApp
             builder.Services.AddScoped<IEventVenueRepo, EventVenueRepo>();
             builder.Services.AddScoped<IEventRepo, EventRepo>();
             builder.Services.AddScoped<IEventScheduleRepo, EventScheduleRepo>();
+            builder.Services.AddScoped<ITicketRepo, TicketRepo>();
+            builder.Services.AddScoped<ITicketPurchasesRepo, TicketPurchasesRepo>();
 
             builder.Services.AddControllers();
 

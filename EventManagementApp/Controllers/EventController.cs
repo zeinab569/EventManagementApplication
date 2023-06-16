@@ -47,7 +47,6 @@ namespace EventManagementApp.Controllers
             if (eventDTOs == null) return BadRequest();
             if (!ModelState.IsValid) return BadRequest();
 
-            //await _eventRepo.AddAsync(_mapper.Map<Event>(eventDTOs));
             await _eventRepo.AddAsync(_mapper.Map<Event>(eventDTOs));
             //return CreatedAtAction("GetEventById", new { id = eventDTOs.id }, eventDTOs);
             return Created("Add Successfully", eventDTOs);
