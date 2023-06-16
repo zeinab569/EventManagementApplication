@@ -63,7 +63,6 @@ namespace EventManagementApp.Controllers
         public async Task<ActionResult<SponsorDTO>> AddSponsor(AddSponsorDTO sponsorToCreate)
         {
 
-         
             if (sponsorToCreate == null)
                 return BadRequest(ModelState);
 
@@ -90,7 +89,6 @@ namespace EventManagementApp.Controllers
                 return StatusCode(500, ModelState);
             }
             return Ok($"{sponsorObj.SponsorName} added successfully");
-
         }
 
 
@@ -111,17 +109,16 @@ namespace EventManagementApp.Controllers
                 return BadRequest();
 
             var sponsorObj = _mapper.Map<AddSponsorDTO, Sponsor>(sponsorToUpdate);
-            if ( _sponsorRepo.UpdateAsync(id, sponsorObj) == null)
+            if (_sponsorRepo.UpdateAsync(id, sponsorObj) == null)
             {
                 ModelState.AddModelError("", $"Something went wrong updating the Sponsor " +
                                                     $"{sponsorObj.SponsorName}");
                 return StatusCode(500, ModelState);
             }
 
-            return Ok(sponsorToUpdate);
+            return Ok($"{sponsorToUpdate.SponsorName} updated successfully");
         }
 
-        //delete 
         [HttpDelete("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]

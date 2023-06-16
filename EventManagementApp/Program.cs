@@ -74,6 +74,9 @@ namespace EventManagementApp
             builder.Services.AddScoped<ITicketPurchasesRepo, TicketPurchasesRepo>();
             builder.Services.AddScoped<ISpeakerRepo, SpeakerRepo>();
             builder.Services.AddScoped<ISponsorRepo, SponsorRepo>();
+            builder.Services.AddScoped<IHotelRepo, HotelRepo>();
+
+
 
 
 
