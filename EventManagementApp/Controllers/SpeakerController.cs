@@ -54,12 +54,12 @@ namespace EventManagementApp.Controllers
             Speaker PostedSponsor = await _speakerRepo.AddAsync(speakerObj);
             if (PostedSponsor == null)
             {
-                ModelState.AddModelError("", $"Something went wrong saving the Speaker ");
+                ModelState.AddModelError("","Something went wrong");
                 return StatusCode(500, ModelState);
             }
             return Ok($"{speakerObj.SpeakerName} added successfully");
         }
-
+        
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdataSpeaker(int id, AddSpeakerDTO speakerDTOs)
         {
@@ -72,8 +72,7 @@ namespace EventManagementApp.Controllers
             var speakerObj = _mapper.Map<AddSpeakerDTO, Speaker>(speakerDTOs);
             if (_speakerRepo.UpdateAsync(id, speakerObj) == null)
             {
-                ModelState.AddModelError("", $"Something went wrong updating the Speaker " +
-                                             $"{speakerObj.SpeakerName}");
+                ModelState.AddModelError("","Something went wrong");
                 return StatusCode(500, ModelState);
             }
             return Ok(speakerDTOs);
