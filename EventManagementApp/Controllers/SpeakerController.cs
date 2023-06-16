@@ -24,13 +24,12 @@ namespace EventManagementApp.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllSpeakrs()
         {
-            List<Speaker> speakerList = (List<Speaker>)await _speakerRepo.GetAllAsync(
-                 s => s.Events
-                );
-            var speakerDTOs = _mapper.Map<List<SpeakerDTO>>(speakerList);
-
-            if (speakerDTOs.Count == 0) return NotFound();
-            return Ok(speakerDTOs);
+            var sponsors = _mapper.Map<List<SpeakerDTO>>(await _speakerRepo.GetAllAsync(s => s.Events));
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            return Ok(sponsors);
         }
 
         //get by id
@@ -51,15 +50,32 @@ namespace EventManagementApp.Controllers
             if (seakerDTOs == null) return BadRequest();
             if (!ModelState.IsValid) return BadRequest();
 
-            await _speakerRepo.AddAsync(_mapper.Map<Speaker>(seakerDTOs));
-            return Created("Add Successfully", seakerDTOs);
+            Speaker speakerObj = _mapper.Map<AddSpeakerDTO, Speaker>(seakerDTOs);
+            Speaker PostedSponsor = await _speakerRepo.AddAsync(speakerObj);
+            if (PostedSponsor == null)
+            {
+                ModelState.AddModelError("", $"Something went wrong saving the Speaker ");
+                return StatusCode(500, ModelState);
+            }
+            return Ok($"{speakerObj.SpeakerName} added successfully");
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdataSpeaker(int id, AddSpeakerDTO speakerDTOs)
         {
-            if (speakerDTOs == null) return BadRequest();
-            await _speakerRepo.UpdateAsync(id, _mapper.Map<Speaker>(speakerDTOs));
+            if (speakerDTOs == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var speakerObj = _mapper.Map<AddSpeakerDTO, Speaker>(speakerDTOs);
+            if (_speakerRepo.UpdateAsync(id, speakerObj) == null)
+            {
+                ModelState.AddModelError("", $"Something went wrong updating the Speaker " +
+                                             $"{speakerObj.SpeakerName}");
+                return StatusCode(500, ModelState);
+            }
             return Ok(speakerDTOs);
         }
 
