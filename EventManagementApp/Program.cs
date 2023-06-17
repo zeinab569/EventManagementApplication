@@ -76,6 +76,13 @@ namespace EventManagementApp
             builder.Services.AddScoped<ITicketRepo, TicketRepo>();
             builder.Services.AddScoped<ITicketPurchasesRepo, TicketPurchasesRepo>();
             builder.Services.AddScoped<ISpeakerRepo, SpeakerRepo>();
+            builder.Services.AddScoped<IGallaryRepo, GallaryRepo>();
+            builder.Services.AddScoped<ISponsorRepo, SponsorRepo>();
+            builder.Services.AddScoped<IHotelRepo, HotelRepo>();
+
+
+
+
 
             builder.Services.AddControllers().AddJsonOptions(option =>
                // option.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip,

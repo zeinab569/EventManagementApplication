@@ -9,10 +9,12 @@ namespace EventManagementApp.Helpers
         public SpeakerMappingProfile()
         {
             CreateMap<Speaker, SpeakerDTO>()
-                .ForMember(dest => dest.Events, opt => opt.MapFrom(src => src.Events.Select(s => s.EventName)));
+                .ForMember(e => e.Event, e => e.MapFrom(e => e.Events.Select(s => s.EventName)))
+                .ReverseMap();
 
-            CreateMap<AddSpeakerDTO, Speaker>()
-                .ForMember(dest => dest.Events, opt => opt.MapFrom(src => src.Events.Select(id => new Event { Id = id })));
+            CreateMap<Speaker, AddSpeakerDTO>().
+                ForMember(e => e.EventId, opt => opt.MapFrom(e => e.Events.Select(s => s.Id)))
+            .ReverseMap();
         }
     }
 }
