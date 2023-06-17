@@ -7,15 +7,12 @@ namespace EventManagementApp.Helpers
 {
     public class SponsorMappingProfile : Profile
     {
-        public SponsorMappingProfile() 
+        public SponsorMappingProfile()
         {
             CreateMap<Sponsor, SponsorDTO>()
-                .ForMember(e => e.Events, e => e.MapFrom(e => e.Events.Select(s => s.EventName)))
-                .ReverseMap();
+                .ForMember(e => e.Events, e => e.MapFrom(e => e.Events.Select(s => s.EventName)));
 
-            CreateMap<Sponsor, AddSponsorDTO>().
-                ForMember(e => e.EventId, opt => opt.MapFrom(e => e.Events.Select(s => s.Id)))
-            .ReverseMap();
+            CreateMap<AddSponsorDTO, Sponsor>();
         }
     }
 }

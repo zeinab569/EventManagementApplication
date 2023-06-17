@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
-using EventManagementApp.Dtos;
+using EventManagementApp.Dtos.EventScheduleDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,25 +34,25 @@ namespace EventManagementApp.Controllers
         {
             var schedule = await _eventScheduleRepo.GetByIdAsync(id, e => e.Event);
             if (schedule == null) return NotFound();
-            var scheduleDTOs = _mapper.Map<EventSchedule, EventScheduleDTO>(schedule);
+            var scheduleDTOs = _mapper.Map<EventScheduleDTO>(schedule);
             return Ok(scheduleDTOs);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddSchedule(EventScheduleDTO scheduleDTOs)
+        public async Task<IActionResult> AddSchedule(AddScheduleDTO scheduleDTOs)
         {
             if (scheduleDTOs == null) return BadRequest();
             if (!ModelState.IsValid) return BadRequest();
 
-            await _eventScheduleRepo.AddAsync(_mapper.Map<EventScheduleDTO, EventSchedule>(scheduleDTOs));
+            await _eventScheduleRepo.AddAsync(_mapper.Map<EventSchedule>(scheduleDTOs));
             return Created("Add Successfully", scheduleDTOs);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSchedule(int id, EventScheduleDTO scheduleDTOs)
+        public async Task<IActionResult> UpdateSchedule(int id, AddScheduleDTO scheduleDTOs)
         {
             if (scheduleDTOs == null) return BadRequest();
-            await _eventScheduleRepo.UpdateAsync(id, _mapper.Map<EventScheduleDTO, EventSchedule>(scheduleDTOs));
+            await _eventScheduleRepo.UpdateAsync(id, _mapper.Map<EventSchedule>(scheduleDTOs));
             return Ok(scheduleDTOs);
         }
 

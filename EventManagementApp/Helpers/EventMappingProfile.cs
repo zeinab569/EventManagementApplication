@@ -15,11 +15,10 @@ namespace EventManagementApp.Helpers
                 .ForMember(e => e.Sponsors, e => e.MapFrom(e => e.Sponsors.Select(s => s.SponsorName)))
                 .ForMember(e => e.Speakers, e => e.MapFrom(e => e.Speakers.Select(s => s.SpeakerName)))
                 .ForMember(e => e.Gallaries, e => e.MapFrom(e => e.Gallaries.Select(s => s.Photo)));
-            //.ForMember(e => e.Venue, e => e.MapFrom(e => e.Venue.VenueName))
 
             CreateMap<AddEventDTO, Event>()
-            .ForMember(dest => dest.Sponsors, opt => opt.MapFrom(src => db.Sponsors.Where(e => src.Sponsors.Contains(e.Id)).ToList()))
-            .ForMember(dest => dest.Speakers, opt => opt.MapFrom(src => db.Speakers.Where(e => src.Speakers.Contains(e.Id)).ToList()));
+                .ForMember(dest => dest.Speakers, opt => opt.Ignore())
+                .ForMember(dest => dest.Sponsors, opt => opt.Ignore());
 
         }
     }

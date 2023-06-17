@@ -8,7 +8,7 @@ namespace EventManagementApp.Dtos.SponsorDTO
         public string SponsorName { get; set; }
         public string SponsorLogo { get; set; }
         public string SponsorDetails { get; set; }
+        public List<string> Events { get; set; } = new List<string>();
 
-        public List<EventDTO> Events { get; set; } = new List<EventDTO>();
     }
 }
