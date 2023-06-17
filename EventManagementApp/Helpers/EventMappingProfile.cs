@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Core.Entities;
 using EventManagementApp.Dtos.EventDTOs;
+using Infrastructure.Data;
 
 namespace EventManagementApp.Helpers
 {
@@ -17,8 +18,8 @@ namespace EventManagementApp.Helpers
             //.ForMember(e => e.Venue, e => e.MapFrom(e => e.Venue.VenueName))
 
             CreateMap<AddEventDTO, Event>()
-                .ForMember(dest => dest.Sponsors, opt => opt.MapFrom(src => src.Sponsors.Select(id => new Sponsor { Id = id })))
-                .ForMember(dest => dest.Speakers, opt => opt.MapFrom(src => src.Speakers.Select(id => new Speaker { Id = id })));
+            .ForMember(dest => dest.Sponsors, opt => opt.MapFrom(src => db.Sponsors.Where(e => src.Sponsors.Contains(e.Id)).ToList()))
+            .ForMember(dest => dest.Speakers, opt => opt.MapFrom(src => db.Speakers.Where(e => src.Speakers.Contains(e.Id)).ToList()));
 
         }
     }
