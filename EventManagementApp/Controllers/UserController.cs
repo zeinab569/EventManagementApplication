@@ -27,6 +27,7 @@ namespace EventManagementApp.Controllers
             _authContext = context;
         }
 
+        //Login
         [HttpPost("authenticate")]
         public async Task<IActionResult> Authenticate([FromBody] User userObj)
         {
@@ -43,7 +44,6 @@ namespace EventManagementApp.Controllers
             {
                 return BadRequest(new { Message = "Password is Incorrect" });
             }
-
             user.Token = CreateJwt(user);
             var newAccessToken = user.Token;
             var newRefreshToken = CreateRefreshToken();
@@ -58,6 +58,7 @@ namespace EventManagementApp.Controllers
             });
         }
 
+        //Register
         [HttpPost("register")]
         public async Task<IActionResult> AddUser([FromBody] User userObj)
         {
@@ -88,6 +89,7 @@ namespace EventManagementApp.Controllers
             });
         }
 
+
         private Task<bool> CheckEmailExistAsync(string? email)
             => _authContext.Users.AnyAsync(x => x.Email == email);
 
@@ -109,7 +111,7 @@ namespace EventManagementApp.Controllers
         private string CreateJwt(User user)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("veryverysceret.....");
+            var key = Encoding.ASCII.GetBytes("this is my custom Secret key for authentication");
             var identity = new ClaimsIdentity(new Claim[]
             {
                 new Claim(ClaimTypes.Role, user.Role),
@@ -169,6 +171,7 @@ namespace EventManagementApp.Controllers
         {
             return Ok(await _authContext.Users.ToListAsync());
         }
+
 
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] TokenApiDto tokenApiDto)
