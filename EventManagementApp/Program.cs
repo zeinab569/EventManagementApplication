@@ -7,10 +7,12 @@ using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Text;
+using System.Text.Json;
 using static Core.Interfaces.IGenericRepo;
 
 
@@ -55,7 +57,7 @@ namespace EventManagementApp
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("veryverysceret.....")),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("this is my custom Secret key for authentication")),
                     ValidateAudience = false,
                     ValidateIssuer = false,
                     ClockSkew = TimeSpan.Zero
@@ -63,6 +65,7 @@ namespace EventManagementApp
             });
 
 
+       
 
             builder.Services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -74,7 +77,14 @@ namespace EventManagementApp
             builder.Services.AddScoped<ITicketPurchasesRepo, TicketPurchasesRepo>();
             builder.Services.AddScoped<ISpeakerRepo, SpeakerRepo>();
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions(option =>
+               // option.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip,
+                option.JsonSerializerOptions.AllowTrailingCommas = true
+                );
+
+                
+      
+            //builder.Services.AddControllers();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -126,7 +136,7 @@ namespace EventManagementApp
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseAuthentication();
-            app.UseRouting();
+            //app.UseRouting();
             app.UseAuthorization();
             app.UseCors(txt);
             app.MapControllers();
