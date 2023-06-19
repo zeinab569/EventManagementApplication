@@ -11,10 +11,16 @@ namespace EventManagementApp.Helpers
             CreateMap<Speaker, SpeakerDTO>()
                 .ForMember(e => e.Event, e => e.MapFrom(e => e.Events.Select(s => s.EventName)))
                 .ReverseMap();
+                //.ForMember(a => a.SpeakerImage, o => o.MapFrom<SpeakerUrlResolver>());
+
 
             CreateMap<Speaker, AddSpeakerDTO>().
                 ForMember(e => e.EventId, opt => opt.MapFrom(e => e.Events.Select(s => s.Id)))
             .ReverseMap();
+            
+            
+
+
         }
     }
 }
