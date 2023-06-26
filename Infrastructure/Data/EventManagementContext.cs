@@ -21,7 +21,6 @@ namespace Infrastructure.Data
         public virtual DbSet<Sponsor> Sponsors { get; set; }
         public virtual DbSet<Speaker> Speakers { get; set; }
         public virtual DbSet<Ticket> Tickets { get; set; }
-        public virtual DbSet<EventTicket> EventTickets { get; set; }
         public virtual DbSet<TicketPurchase> TicketPurchases { get; set; }
         public virtual DbSet<Gallary> Gallaries { get; set; }
         public virtual DbSet<Hotel> Hotels { get; set; }

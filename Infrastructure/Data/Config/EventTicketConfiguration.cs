@@ -9,11 +9,5 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Data.Config
 {
-    public class EventTicketConfiguration : IEntityTypeConfiguration<EventTicket>
-    {
-        public void Configure(EntityTypeBuilder<EventTicket> builder)
-        {
-            builder.HasKey(k => new { k.EventId, k.TicketId, k.TicketQuentity });
-        }
-    }
+   
 }

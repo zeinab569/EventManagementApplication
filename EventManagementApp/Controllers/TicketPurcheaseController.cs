@@ -45,7 +45,7 @@ namespace EventManagementApp.Controllers
             TicketPurchasePostDTO postedTicketPurchasesDTO = _mapper.Map<TicketPurchase, TicketPurchasePostDTO>(ticketPurchase);
             return Ok(postedTicketPurchasesDTO);
         }
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<ActionResult<TicketPurchasesDTO>> DeleteTicketPurchease(int id )
         {
             TicketPurchase ticketPurchase = await _ticketPurchasesRepo.GetByIdAsync(id);
