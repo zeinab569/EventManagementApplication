@@ -57,17 +57,17 @@ namespace EventManagementApp.Controllers
             return Ok(_mapper.Map<Ticket, TicketDTO>(ticket));
         }
         [HttpPut ("{id}")]
-        public async Task<ActionResult<TicketPostDTO>>UpdateTicket( int id ,TicketPostDTO ticket )
+        public async Task<ActionResult<TicketDTO>>UpdateTicket( int id ,Ticket ticket )
         {
 
             if (ticket == null) return BadRequest();
             if (!ModelState.IsValid) return BadRequest();
             Ticket ticketFound = await _ticketRepo.GetByIdAsync(id);
             if (ticketFound == null) return NotFound();
-            ticketFound=_mapper.Map<TicketPostDTO,Ticket>(ticket);
-
+            // ticketFound=_mapper.Map<TicketPostDTO,Ticket>(ticket);
+            ticketFound.TicketQuentity = ticket.TicketQuentity;
             await _ticketRepo.UpdateAsync(id, ticketFound);
-            return Ok(ticket);
+            return Ok(_mapper.Map<Ticket,TicketDTO>(ticketFound));
 
         }
         

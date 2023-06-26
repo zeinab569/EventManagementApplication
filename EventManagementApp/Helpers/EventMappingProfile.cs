@@ -16,9 +16,11 @@ namespace EventManagementApp.Helpers
                 .ForMember(e => e.Speakers, e => e.MapFrom(e => e.Speakers.Select(s => s.SpeakerName)))
                 .ForMember(e => e.Gallaries, e => e.MapFrom(e => e.Gallaries.Select(s => s.Photo)));
 
+
             CreateMap<AddEventDTO, Event>()
                 .ForMember(dest => dest.Speakers, opt => opt.Ignore())
                 .ForMember(dest => dest.Sponsors, opt => opt.Ignore());
+
 
         }
     }
