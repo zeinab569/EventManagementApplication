@@ -43,6 +43,18 @@ namespace Infrastructure.Repositories
 
         public async Task UpdateAsync(int id, T entity)
         {
+
+            var existingEntity = await _context.Set<T>().FindAsync(id);
+            if (existingEntity == null)
+            {
+                return;
+            }
+
+            entity.Id = existingEntity.Id;
+            _context.Entry(existingEntity).CurrentValues.SetValues(entity);
+            await _context.SaveChangesAsync();
+
+            /*
             var existingEntity = await _context.Set<T>().FindAsync(id);
             if (existingEntity != null)
             {
@@ -50,6 +62,7 @@ namespace Infrastructure.Repositories
             }
             _context.Entry(entity).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+            */
         }
 
         public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeProperties)

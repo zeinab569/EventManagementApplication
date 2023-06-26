@@ -4,6 +4,6 @@
     {
         public string SpeakerName { get; set; }
         public string SpeakerBio { get; set; }
-        public string SpeakerImage { get; set; }
+        public IFormFile? SpeakerImage { get; set; }
     }
 }
