@@ -15,8 +15,8 @@ namespace Core.Entities
         public DateTime EventDate { get; set; }
         public DateTime EventTime { get; set; }
         public string EventImage { get; set; }
-        public virtual ICollection<Sponsor> Sponsors { get; set; } = new List<Sponsor>();
-        public virtual ICollection<Speaker> Speakers { get; set; } = new List<Speaker>();
+        public virtual List<Sponsor> Sponsors { get; set; } = new List<Sponsor>();
+        public virtual List<Speaker> Speakers { get; set; } = new List<Speaker>();
         public virtual ICollection<Gallary> Gallaries { get; set; } = new List<Gallary>();
         public virtual ICollection<EventSchedule> EventSchedules { get; set; } = new List<EventSchedule>();
 

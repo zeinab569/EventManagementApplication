@@ -13,17 +13,23 @@ namespace EventManagementApp.Controllers
     public class EventController : ControllerBase
     {
         private readonly IEventRepo _eventRepo;
+        private readonly ISpeakerRepo _speakerRepo;
+        private readonly ISponsorRepo _sponserRepo;
+
         IMapper _mapper;
-        public EventController(IEventRepo eventRepo, IMapper mapper)
+        public EventController(IEventRepo eventRepo, IMapper mapper,
+            ISpeakerRepo speakerRepo, ISponsorRepo sponserRepo)
         {
             _eventRepo = eventRepo;
             _mapper = mapper;
+            _speakerRepo = speakerRepo;
+            _sponserRepo = sponserRepo;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllEvents()
         {
-            var eventsList = (List<Event>)await _eventRepo.GetAllAsync();
+            var eventsList = (List<Event>)await _eventRepo.GetListAsync();
             var eventDTOs = _mapper.Map<List<EventDTO>>(eventsList);
 
             if (eventDTOs.Count == 0) return NotFound();
@@ -47,16 +53,76 @@ namespace EventManagementApp.Controllers
             if (eventDTOs == null) return BadRequest();
             if (!ModelState.IsValid) return BadRequest();
 
-            await _eventRepo.AddAsync(_mapper.Map<Event>(eventDTOs));
-            //return CreatedAtAction("GetEventById", new { id = eventDTOs.id }, eventDTOs);
+            var eventEntity = _mapper.Map<Event>(eventDTOs);
+
+            #region Speakers on Event
+
+            var speakers = new List<Speaker>();
+            foreach (var speakerId in eventDTOs.SpeakersId)
+            {
+                var speaker = await _speakerRepo.GetByIDAsync(speakerId);
+                if (speaker != null)
+                    speakers.Add(speaker);
+            }
+            eventEntity.Speakers = speakers;
+
+            #endregion
+
+            #region Sponser on Event
+
+            var sponsers = new List<Sponsor>();
+            foreach (var sponserId in eventDTOs.SponsorsId)
+            {
+                var sponser = await _sponserRepo.GetByIDAsync(sponserId);
+                if (sponser != null)
+                    sponsers.Add(sponser);
+            }
+            eventEntity.Sponsors = sponsers;
+
+            #endregion
+
+            await _eventRepo.AddAsync(eventEntity);
             return Created("Add Successfully", eventDTOs);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdataEvent(int id, AddEventDTO eventDTOs)
         {
+            var existingEvent = await _eventRepo.GetByIdAsync(id);
+            if (existingEvent == null) return NotFound();
             if (eventDTOs == null) return BadRequest();
-            await _eventRepo.UpdateAsync(id, _mapper.Map<Event>(eventDTOs));
+
+            var eventEntity = _mapper.Map<Event>(eventDTOs);
+
+            #region Speakers on Event
+
+            var speakers = new List<Speaker>();
+            foreach (var speakerId in eventDTOs.SpeakersId)
+            {
+                var speaker = await _speakerRepo.GetByIDAsync(speakerId);
+                if (speaker != null)
+                    speakers.Add(speaker);
+            }
+            existingEvent.Speakers.Clear();
+            existingEvent.Speakers.AddRange(speakers);
+
+            #endregion
+
+            #region Sponser on Event
+
+            var sponsers = new List<Sponsor>();
+            foreach (var sponserId in eventDTOs.SponsorsId)
+            {
+                var sponser = await _sponserRepo.GetByIDAsync(sponserId);
+                if (sponser != null)
+                    sponsers.Add(sponser);
+            }
+            existingEvent.Sponsors.Clear();
+            existingEvent.Sponsors.AddRange(sponsers);
+
+            #endregion
+
+            await _eventRepo.UpdateAsync(id, existingEvent);
             return Ok(eventDTOs);
         }
 
