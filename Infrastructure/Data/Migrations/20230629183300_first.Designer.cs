@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Infrastructure.Data.migrations
+namespace Infrastructure.Data.Migrations
 {
     [DbContext(typeof(EventManagementContext))]
-    [Migration("20230617223128_lastintiall")]
-    partial class lastintiall
+    [Migration("20230629183300_first")]
+    partial class first
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -84,24 +84,6 @@ namespace Infrastructure.Data.migrations
                     b.ToTable("EventSchedule");
                 });
 
-            modelBuilder.Entity("Core.Entities.EventTicket", b =>
-                {
-                    b.Property<int>("EventId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TicketId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TicketQuentity")
-                        .HasColumnType("int");
-
-                    b.HasKey("EventId", "TicketId", "TicketQuentity");
-
-                    b.HasIndex("TicketId");
-
-                    b.ToTable("EventTickets");
-                });
-
             modelBuilder.Entity("Core.Entities.EventVenue", b =>
                 {
                     b.Property<int>("Id")
@@ -166,6 +148,9 @@ namespace Infrastructure.Data.migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("HotelDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HotelImage")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("HotelName")
@@ -368,25 +353,6 @@ namespace Infrastructure.Data.migrations
                         .IsRequired();
 
                     b.Navigation("Event");
-                });
-
-            modelBuilder.Entity("Core.Entities.EventTicket", b =>
-                {
-                    b.HasOne("Core.Entities.Event", "Event")
-                        .WithMany()
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.Ticket", "Ticket")
-                        .WithMany()
-                        .HasForeignKey("TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("Core.Entities.Gallary", b =>

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Infrastructure.Data.Migrations
 {
-    public partial class initial : Migration
+    public partial class first : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -18,7 +18,8 @@ namespace Infrastructure.Data.Migrations
                     HotelName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     HotelAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     HotelDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    HotelContactinfo = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    HotelContactinfo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    HotelImage = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -56,17 +57,24 @@ namespace Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tickets",
+                name: "User",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TicketName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TicketPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Username = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Token = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tickets", x => x.Id);
+                    table.PrimaryKey("PK_User", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -83,27 +91,6 @@ namespace Infrastructure.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Venues", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TicketPurchases",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PurchaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PurchaseDetailes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TicketId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TicketPurchases", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TicketPurchases_Tickets_TicketId",
-                        column: x => x.TicketId,
-                        principalTable: "Tickets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -200,31 +187,6 @@ namespace Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EventTickets",
-                columns: table => new
-                {
-                    TicketQuentity = table.Column<int>(type: "int", nullable: false),
-                    EventId = table.Column<int>(type: "int", nullable: false),
-                    TicketId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_EventTickets", x => new { x.EventId, x.TicketId, x.TicketQuentity });
-                    table.ForeignKey(
-                        name: "FK_EventTickets_Events_EventId",
-                        column: x => x.EventId,
-                        principalTable: "Events",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_EventTickets_Tickets_TicketId",
-                        column: x => x.TicketId,
-                        principalTable: "Tickets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Gallaries",
                 columns: table => new
                 {
@@ -241,6 +203,57 @@ namespace Infrastructure.Data.Migrations
                         name: "FK_Gallaries_Events_EventId",
                         column: x => x.EventId,
                         principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tickets",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TicketType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TicketPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TicketQuentity = table.Column<int>(type: "int", nullable: false),
+                    TicketDetails = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EventId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tickets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tickets_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TicketPurchases",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PurchaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PurchaseDetailes = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TicketId = table.Column<int>(type: "int", nullable: false),
+                    UserID = table.Column<int>(type: "int", nullable: false),
+                    CardNumber = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TicketPurchases", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TicketPurchases_Tickets_TicketId",
+                        column: x => x.TicketId,
+                        principalTable: "Tickets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TicketPurchases_User_UserID",
+                        column: x => x.UserID,
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -266,11 +279,6 @@ namespace Infrastructure.Data.Migrations
                 column: "SponsorsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EventTickets_TicketId",
-                table: "EventTickets",
-                column: "TicketId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Gallaries_EventId",
                 table: "Gallaries",
                 column: "EventId");
@@ -279,6 +287,16 @@ namespace Infrastructure.Data.Migrations
                 name: "IX_TicketPurchases_TicketId",
                 table: "TicketPurchases",
                 column: "TicketId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TicketPurchases_UserID",
+                table: "TicketPurchases",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tickets_EventId",
+                table: "Tickets",
+                column: "EventId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -291,9 +309,6 @@ namespace Infrastructure.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "EventSponsor");
-
-            migrationBuilder.DropTable(
-                name: "EventTickets");
 
             migrationBuilder.DropTable(
                 name: "Gallaries");
@@ -311,10 +326,13 @@ namespace Infrastructure.Data.Migrations
                 name: "Sponsors");
 
             migrationBuilder.DropTable(
-                name: "Events");
+                name: "Tickets");
 
             migrationBuilder.DropTable(
-                name: "Tickets");
+                name: "User");
+
+            migrationBuilder.DropTable(
+                name: "Events");
 
             migrationBuilder.DropTable(
                 name: "Venues");
