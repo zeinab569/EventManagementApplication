@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
+using EventManagementApp.Dtos.EventDTOs;
 using EventManagementApp.Dtos.SpeakerDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -50,29 +51,20 @@ namespace EventManagementApp.Controllers
             if (seakerDTOs == null) return BadRequest();
             if (!ModelState.IsValid) return BadRequest();
 
-            Speaker speakerObj = _mapper.Map<AddSpeakerDTO, Speaker>(seakerDTOs);
-            Speaker PostedSponsor = await _speakerRepo.AddAsync(speakerObj);
-            if (PostedSponsor == null)
-            {
-                ModelState.AddModelError("","Something went wrong");
-                return StatusCode(500, ModelState);
-            }
-            return Ok($"{speakerObj.SpeakerName} added successfully");
+            await _speakerRepo.AddAsync(_mapper.Map<Speaker>(seakerDTOs));
+            return Created("Add Successfully", seakerDTOs);
         }
-        
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdataSpeaker(int id, AddSpeakerDTO speakerDTOs)
         {
-            if (speakerDTOs == null)
-                return BadRequest(ModelState);
+            if (speakerDTOs == null) return BadRequest();
+            if (!ModelState.IsValid) return BadRequest();
 
-            if (!ModelState.IsValid)
-                return BadRequest();
-
-            var speakerObj = _mapper.Map<AddSpeakerDTO, Speaker>(speakerDTOs);
+            var speakerObj = _mapper.Map<Speaker>(speakerDTOs);
             if (_speakerRepo.UpdateAsync(id, speakerObj) == null)
             {
-                ModelState.AddModelError("","Something went wrong");
+                ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);
             }
             return Ok(speakerDTOs);

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Core.Entities;
-using EventManagementApp.Dtos;
+using EventManagementApp.Dtos.EventScheduleDTOs;
 
 namespace EventManagementApp.Helpers
 {
@@ -9,8 +9,10 @@ namespace EventManagementApp.Helpers
         public EventScheduleMappingProfile()
         {
             CreateMap<EventSchedule, EventScheduleDTO>()
-                .ForMember(e => e.Event, e => e.MapFrom(e => e.Event.EventName))
-                .ReverseMap();
+                .ForMember(e => e.Event, e => e.MapFrom(e => e.Event.EventName));
+
+            CreateMap<AddScheduleDTO, EventSchedule>()
+                .ForMember(e => e.EventId, e => e.MapFrom(e => e.EventId));
         }
     }
 }

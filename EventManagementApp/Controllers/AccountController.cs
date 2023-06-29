@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Net.Mail;
 
 namespace EventManagementApp.Controllers
 {
@@ -52,6 +53,7 @@ namespace EventManagementApp.Controllers
 
         }
 
+
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
@@ -63,14 +65,18 @@ namespace EventManagementApp.Controllers
             };
 
             var result= await _userManager.CreateAsync(user, registerDto.Password);
-            if (!result.Succeeded) return BadRequest(new ApiResponce(400));
+            if (!result.Succeeded)
+             return BadRequest(new ApiResponce(400));
             return new UserDto
             {
                 DisplayName = user.DisplayName,
                 Token = _tokenServices.CreateToken(user),
                 Email = user.Email,
             };
+
         }
+           
+        
 
 
         [HttpGet("secret")]

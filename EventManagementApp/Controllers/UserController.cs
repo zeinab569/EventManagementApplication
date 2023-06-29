@@ -14,6 +14,16 @@ using Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using EventManagementApp.Helpers;
 using EventManagementApp.Dtos.AccountDto;
+using System.Net.Mail;
+using EventManagementApp.Errors;
+using System.Net;
+using MailKit.Security;
+using MimeKit.Text;
+using MimeKit;
+using MailKit.Net.Smtp;
+using SmtpClient = MailKit.Net.Smtp.SmtpClient;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using Core.Interfaces;
 
 namespace EventManagementApp.Controllers
 {
@@ -22,9 +32,14 @@ namespace EventManagementApp.Controllers
     public class UserController : ControllerBase
     {
         private readonly AppIdentityDbContext _authContext;
-        public UserController(AppIdentityDbContext context)
+        private readonly IConfiguration _config;
+        private readonly IEmailRepo _emailRepo;
+
+        public UserController(AppIdentityDbContext context, IConfiguration config, IEmailRepo emailRepo)
         {
             _authContext = context;
+            _config = config;
+            _emailRepo = emailRepo;
         }
 
         //Login
@@ -62,6 +77,12 @@ namespace EventManagementApp.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> AddUser([FromBody] User userObj)
         {
+            EmailDto emaildes = new EmailDto
+            {
+                Body = "Registration successfully ^_^",
+                Subject= "Registration successfully"
+            };
+
             if (userObj == null)
                 return BadRequest();
 
@@ -82,6 +103,9 @@ namespace EventManagementApp.Controllers
             userObj.Token = "";
             await _authContext.AddAsync(userObj);
             await _authContext.SaveChangesAsync();
+
+           // SendEmail(emaildes,userObj.Email);
+
             return Ok(new
             {
                 Status = 200,
@@ -89,6 +113,25 @@ namespace EventManagementApp.Controllers
             });
         }
 
+        //for send email
+        private void SendEmail(EmailDto request,string em)
+        {
+            var email = new MimeMessage();
+            email.From.Add(MailboxAddress.Parse(_config.GetSection("EmailUsername").Value));
+            email.To.Add(MailboxAddress.Parse(em));
+            email.Subject = request.Subject;
+            email.Body = new TextPart(TextFormat.Html) { Text = request.Body };
+
+            using var smtp = new SmtpClient();
+            //the error here
+            smtp.Connect(_config.GetSection("EmailHost").Value, 587, SecureSocketOptions.StartTls);
+            //smtp.Connect("smtp.ethereal.email", 587);
+
+            smtp.Authenticate(_config.GetSection("EmailUsername").Value, _config.GetSection("EmailPassword").Value);
+            //smtp.Authenticate("darren.shanahan@ethereal.email", "mjCvdhGBY7eWza9fky");
+            smtp.Send(email);
+            smtp.Disconnect(true);
+        }
 
         private Task<bool> CheckEmailExistAsync(string? email)
             => _authContext.Users.AnyAsync(x => x.Email == email);
@@ -195,5 +238,95 @@ namespace EventManagementApp.Controllers
                 RefreshToken = newRefreshToken,
             });
         }
+
+        [HttpPost("send-reset-email/{email}")]
+
+        public async Task<IActionResult> SendAnEmail(string email)
+        {
+            var user = await _authContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user is null)
+            {
+                return NotFound(new
+                {
+                    StatusCode = 404,
+                    message = "this email Not Exist"
+                });
+            }
+            var tokenBytes = RandomNumberGenerator.GetBytes(64);
+            var emailToken = Convert.ToBase64String(tokenBytes);
+
+            user.ResetPasswordToken = emailToken;
+            user.ResetPasswordExpire = DateTime.Now.AddMinutes(15);
+            string from = _config["EmailSettings:From"];
+            var emailmodel = new EmailModel(email, "ResetPassword", EmailBody.EmailStringBody(email, emailToken));
+            _emailRepo.SendEmail(emailmodel);
+            _authContext.Entry(user).State=EntityState.Modified;
+            await _authContext.SaveChangesAsync();
+            return Ok(new
+            {
+                StatusCode=200,
+                message="update successfully"
+            });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<ActionResult> ResetPassword(ResetPasswordDto resetPasswordDto)
+        {
+            var newToken = resetPasswordDto.EmailToken.Replace(" ", "+");
+            var user = await _authContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == resetPasswordDto.Email);
+            if (user is null)
+            {
+                return NotFound(new
+                {
+                    StatusCode = 404,
+                    message = "this email Not Exist"
+                });
+            }
+            var tokenCode = user.ResetPasswordToken;
+            DateTime emailTokenExpire = user.ResetPasswordExpire;
+            if(tokenCode != resetPasswordDto.EmailToken || emailTokenExpire < DateTime.Now)
+            {
+                return BadRequest(new {
+                    StatusCode=400,
+                    Message="not exist"
+                    
+                });
+            }
+            user.Password = PasswordHasher.HashPassword(resetPasswordDto.NewPassword);
+            _authContext.Entry(user).State = EntityState.Modified;
+            await _authContext.SaveChangesAsync();
+            return Ok(new
+            {
+                StatusCode = 200,
+                message = "update successfully"
+            });
+        }
     }
 }
+//try
+//{
+//    // Create a new SmtpClient instance
+//    SmtpClient smtpClient = new SmtpClient("live.smtp.mailtrap.io", 587); // Example SMTP server and port
+
+//    // Configure the SMTP client
+//    smtpClient.UseDefaultCredentials = false;
+//    smtpClient.Credentials = new NetworkCredential("api", "******"); // Replace with your email credentials
+//    smtpClient.EnableSsl = true;
+
+//    // Create a new MailMessage instance
+//    MailMessage mail = new MailMessage();
+//    mail.From = new MailAddress("zeinabelazzab875@gamil.com"); // Replace with your email address
+//    mail.To.Add(userObj.Email); // Replace with the recipient's email address
+//    mail.Subject = "Register Notification";
+//    mail.Body = "You have successfully register to the system.";
+
+//    // Send the email
+//    smtpClient.Send(mail);
+
+
+//}
+//catch (Exception e)
+//{
+//    if (e.InnerException != null)
+//        Console.WriteLine("Inner exception: {0}", e.InnerException);
+//}

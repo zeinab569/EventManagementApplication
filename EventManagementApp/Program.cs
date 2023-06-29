@@ -79,7 +79,7 @@ namespace EventManagementApp
             builder.Services.AddScoped<IGallaryRepo, GallaryRepo>();
             builder.Services.AddScoped<ISponsorRepo, SponsorRepo>();
             builder.Services.AddScoped<IHotelRepo, HotelRepo>();
-
+            builder.Services.AddScoped<IEmailRepo, EmailRepo>();
 
 
 
