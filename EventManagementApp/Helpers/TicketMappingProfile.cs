@@ -16,7 +16,8 @@ namespace EventManagementApp.Helpers
         .ForMember(e=>e.TicketId,opt=>opt.MapFrom(e=>e.Id))
         .ReverseMap();
 
-         CreateMap<Ticket, TicketPostDTO>().ForMember(e => e.EventId, opt => opt.MapFrom(e => e.EventId))
+         CreateMap<Ticket, TicketPostDTO>()
+         .ForMember(e => e.EventId, opt => opt.MapFrom(e => e.EventId))
          .ReverseMap();
            
         }

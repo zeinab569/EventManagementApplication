@@ -2,6 +2,7 @@
 using Core.Entities;
 using Core.Interfaces;
 using EventManagementApp.Dtos.EventDTOs;
+using EventManagementApp.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
@@ -15,15 +16,17 @@ namespace EventManagementApp.Controllers
         private readonly IEventRepo _eventRepo;
         private readonly ISpeakerRepo _speakerRepo;
         private readonly ISponsorRepo _sponserRepo;
+        private readonly UploadImage _uploadImage;
 
         IMapper _mapper;
         public EventController(IEventRepo eventRepo, IMapper mapper,
-            ISpeakerRepo speakerRepo, ISponsorRepo sponserRepo)
+            ISpeakerRepo speakerRepo, ISponsorRepo sponserRepo, UploadImage uploadImage)
         {
             _eventRepo = eventRepo;
             _mapper = mapper;
             _speakerRepo = speakerRepo;
             _sponserRepo = sponserRepo;
+            _uploadImage = uploadImage;
         }
 
         [HttpGet]
@@ -48,12 +51,15 @@ namespace EventManagementApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddEvent(AddEventDTO eventDTOs)
+        public async Task<IActionResult> AddEvent([FromForm] AddEventDTO eventDTOs)
         {
             if (eventDTOs == null) return BadRequest();
             if (!ModelState.IsValid) return BadRequest();
 
             var eventEntity = _mapper.Map<Event>(eventDTOs);
+
+            if (eventDTOs.EventImage != null)
+                eventEntity.EventImage = await _uploadImage.UploadToCloud(eventDTOs.EventImage);
 
             #region Speakers on Event
 
@@ -86,13 +92,17 @@ namespace EventManagementApp.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdataEvent(int id, AddEventDTO eventDTOs)
+        public async Task<IActionResult> UpdataEvent(int id, [FromForm] AddEventDTO eventDTOs)
         {
             var existingEvent = await _eventRepo.GetByIdAsync(id);
             if (existingEvent == null) return NotFound();
-            if (eventDTOs == null) return BadRequest();
 
-            var eventEntity = _mapper.Map<Event>(eventDTOs);
+            if (eventDTOs == null) return BadRequest();
+            if (!ModelState.IsValid) return BadRequest();
+
+            existingEvent = _mapper.Map<Event>(eventDTOs);
+            if (eventDTOs.EventImage != null)
+                existingEvent.EventImage = await _uploadImage.UploadToCloud(eventDTOs.EventImage);
 
             #region Speakers on Event
 

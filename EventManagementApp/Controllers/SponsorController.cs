@@ -3,7 +3,9 @@ using Core.Entities;
 using Core.Interfaces;
 using EventManagementApp.Dtos;
 using EventManagementApp.Dtos.EventDTOs;
+using EventManagementApp.Dtos.SpeakerDTOs;
 using EventManagementApp.Dtos.SponsorDTO;
+using EventManagementApp.Helpers;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,133 +17,84 @@ namespace EventManagementApp.Controllers
     public class SponsorController : ControllerBase
     {
         private readonly ISponsorRepo _sponsorRepo;
+        private readonly UploadImage _uploadImage;
         private IMapper _mapper;
 
-        public SponsorController(ISponsorRepo sponsorRepo, IMapper mapper)
+        public SponsorController(ISponsorRepo sponsorRepo, IMapper mapper, UploadImage uploadImage)
         {
             _sponsorRepo = sponsorRepo;
             _mapper = mapper;
+            _uploadImage = uploadImage;
         }
 
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Sponsor>))]
-        [ProducesResponseType(400)]
-
-        public async Task<ActionResult> GetAllSponsor()
+        public async Task<ActionResult> GetAllSponser()
         {
-            var sponsors = _mapper.Map<List<SponsorDTO>>(await _sponsorRepo.GetListAsync());
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            return Ok(sponsors);
+            var sponsersList = (List<Sponsor>)await _sponsorRepo.GetAllAsync(s => s.Events);
+            var sponserDTOs = _mapper.Map<List<SponsorDTO>>(sponsersList);
+
+            if (sponserDTOs.Count == 0) return NotFound();
+            return Ok(sponserDTOs);
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(200, Type = typeof(Sponsor))]
-        [ProducesResponseType(400)]
-        public async Task<ActionResult> GetSponsorById(int id)
+        public async Task<ActionResult> GetSponserById(int id)
         {
-            if (!_sponsorRepo.IsSponsorExist(id))
-                return NotFound();
+            var sponser = await _sponsorRepo.GetByIdAsync(id, s => s.Events);
 
-            var sponsor =await _sponsorRepo.GetByIdAsync(id,
-                s => s.Events);
-            var sponsorDTO = _mapper.Map<SponsorDTO>(sponsor);
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            return Ok(sponsorDTO);
+            if (sponser == null) return NotFound();
+            var sponserDTOs = _mapper.Map<SponsorDTO>(sponser);
+            return Ok(sponserDTOs);
         }
 
 
         [HttpPost]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        public async Task<ActionResult<SponsorDTO>> AddSponsor(AddSponsorDTO sponsorToCreate)
+        public async Task<ActionResult<SponsorDTO>> AddSponser([FromForm] AddSponsorDTO sponserDTOs)
         {
 
-            if (sponsorToCreate == null)
-                return BadRequest(ModelState);
+            if (sponserDTOs == null) return BadRequest();
+            if (!ModelState.IsValid) return BadRequest();
 
-            var sponsor = (await _sponsorRepo.GetListAsync())
-                .Where(c => c.SponsorName.Trim().ToUpper() == sponsorToCreate.SponsorName.Trim().ToUpper())
-                .FirstOrDefault();
+            var sponserEntity = _mapper.Map<Sponsor>(sponserDTOs);
+            //--------------to uplaod img on asure -------
+            if (sponserDTOs.SponsorLogo != null)
+                sponserEntity.SponsorLogo = await _uploadImage.UploadToCloud(sponserDTOs.SponsorLogo);
 
-            if (sponsor != null)
-            {
-                ModelState.AddModelError("", $"Sponsor {sponsorToCreate.SponsorName} already exists");
-                return StatusCode(422, ModelState);
-            }
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-
-            Sponsor sponsorObj = _mapper.Map<AddSponsorDTO, Sponsor>(sponsorToCreate);
-            Sponsor PostedSponsor = await _sponsorRepo.AddAsync(sponsorObj);
-            if(PostedSponsor == null)
-            {
-                ModelState.AddModelError("", $"Something went wrong saving the Sponsor " +
-                                             $"{sponsorObj.SponsorName}");
-                return StatusCode(500, ModelState);
-            }
-            return Ok($"{sponsorObj.SponsorName} added successfully");
+            await _sponsorRepo.AddAsync(sponserEntity);
+            return Created("Add Successfully", sponserDTOs);
         }
 
 
         [HttpPut("{id}")]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(404)]
-        public async Task<ActionResult<AddSponsorDTO>> UpdateSponsor(int id,
-        AddSponsorDTO sponsorToUpdate)
+        public async Task<ActionResult<AddSponsorDTO>> UpdateSponsor(int id, [FromForm] AddSponsorDTO sponserDTOs)
         {
-            if (sponsorToUpdate == null)
-                return BadRequest(ModelState);
+            if (sponserDTOs == null) return BadRequest();
+            if (!ModelState.IsValid) return BadRequest();
+            var sponserEntity = _mapper.Map<Sponsor>(sponserDTOs);
 
-            if (!_sponsorRepo.IsSponsorExist(id))
-                return NotFound();
+            if (sponserDTOs.SponsorLogo != null)
+                sponserEntity.SponsorLogo = await _uploadImage.UploadToCloud(sponserDTOs.SponsorLogo);
 
-            if (!ModelState.IsValid)
-                return BadRequest();
+            await _sponsorRepo.UpdateAsync(id, sponserEntity);
+            return Ok(sponserDTOs);
 
-            var sponsorObj = _mapper.Map<AddSponsorDTO, Sponsor>(sponsorToUpdate);
-            if (_sponsorRepo.UpdateAsync(id, sponsorObj) == null)
-            {
-                ModelState.AddModelError("", $"Something went wrong updating the Sponsor " +
-                                                    $"{sponsorObj.SponsorName}");
-                return StatusCode(500, ModelState);
-            }
-
-            return Ok($"{sponsorToUpdate.SponsorName} updated successfully");
         }
 
         [HttpDelete("{id}")]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(404)]
         public async Task<ActionResult> DeleteSponsor(int id)
         {
-            if (!_sponsorRepo.IsSponsorExist(id))
+            var sponser = await _sponsorRepo.GetByIdAsync(id);
+            if (sponser == null) return NotFound();
+            try
             {
-                return NotFound();
+                await _sponsorRepo.DeleteAsync(id);
+                return Ok(sponser);
             }
-
-            Sponsor sponsorToDelete = await _sponsorRepo.GetByIdAsync(id);
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (_sponsorRepo.DeleteAsync(id) == null)
+            catch (Exception ex)
             {
-                ModelState.AddModelError("", $"Something went wrong deleting the sponsor " +
-                                      $"{sponsorToDelete.SponsorName}");
+                return BadRequest(ex.Message);
             }
-            return Ok($"{sponsorToDelete.SponsorName} deleted successfully");
-
         }
     }
 

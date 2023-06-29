@@ -1,5 +1,7 @@
+using Azure.Storage.Blobs;
 using Core.Identity;
 using Core.Interfaces;
+using EventManagementApp.Helpers;
 using Infrastructure.Data;
 using Infrastructure.Identity;
 using Infrastructure.Repositories;
@@ -65,7 +67,7 @@ namespace EventManagementApp
             });
 
 
-       
+
 
             builder.Services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -79,18 +81,18 @@ namespace EventManagementApp
             builder.Services.AddScoped<IGallaryRepo, GallaryRepo>();
             builder.Services.AddScoped<ISponsorRepo, SponsorRepo>();
             builder.Services.AddScoped<IHotelRepo, HotelRepo>();
-            builder.Services.AddScoped<IEmailRepo, EmailRepo>();
+
 
 
 
 
             builder.Services.AddControllers().AddJsonOptions(option =>
-               // option.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip,
+                // option.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip,
                 option.JsonSerializerOptions.AllowTrailingCommas = true
                 );
 
-                
-      
+
+
             //builder.Services.AddControllers();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -148,7 +150,7 @@ namespace EventManagementApp
             app.UseCors(txt);
             app.MapControllers();
 
-            
+
             app.Run();
         }
     }
