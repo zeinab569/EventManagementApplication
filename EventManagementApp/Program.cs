@@ -1,3 +1,4 @@
+
 using Azure.Storage.Blobs;
 using Core.Identity;
 using Core.Interfaces;
@@ -81,10 +82,18 @@ namespace EventManagementApp
             builder.Services.AddScoped<IGallaryRepo, GallaryRepo>();
             builder.Services.AddScoped<ISponsorRepo, SponsorRepo>();
             builder.Services.AddScoped<IHotelRepo, HotelRepo>();
+            builder.Services.AddScoped<IEmailRepo,EmailRepo>();
 
 
-
-
+            #region AzureUpload
+            builder.Services.AddSingleton(e =>
+                new BlobServiceClient(builder.Configuration["AzureStorage:ConnectionString"])
+            );
+            builder.Services.AddSingleton(e =>
+                e.GetRequiredService<BlobServiceClient>().GetBlobContainerClient(builder.Configuration["AzureStorage:ImageContainer"])
+            );
+            builder.Services.AddSingleton<UploadImage>();
+            #endregion
 
             builder.Services.AddControllers().AddJsonOptions(option =>
                 // option.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip,
