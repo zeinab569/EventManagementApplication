@@ -148,6 +148,9 @@ namespace Infrastructure.Data.Migrations
                     b.Property<string>("HotelDescription")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("HotelImage")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("HotelName")
                         .HasColumnType("nvarchar(max)");
 

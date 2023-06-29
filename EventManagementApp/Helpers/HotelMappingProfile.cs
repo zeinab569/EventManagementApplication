@@ -9,9 +9,8 @@ namespace EventManagementApp.Helpers
     {
         public HotelMappingProfile()
         {
-            CreateMap<Hotel, HotelDTO>().ReverseMap();
-            CreateMap<Hotel, AddHotelDTO>().ReverseMap();
-
+            CreateMap<Hotel, HotelDTO>();
+            CreateMap<AddHotelDTO, Hotel>();
         }
     }
 }
