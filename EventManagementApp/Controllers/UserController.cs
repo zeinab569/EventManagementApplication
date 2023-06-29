@@ -128,7 +128,7 @@ namespace EventManagementApp.Controllers
             //smtp.Connect("smtp.ethereal.email", 587);
 
             smtp.Authenticate(_config.GetSection("EmailUsername").Value, _config.GetSection("EmailPassword").Value);
-            //smtp.Authenticate("darren.shanahan@ethereal.email", "mjCvdhGBY7eWza9fky");
+            //smtp.Authenticate("darren.shanahan@ethereal.email", "************");
             smtp.Send(email);
             smtp.Disconnect(true);
         }
