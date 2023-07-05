@@ -80,7 +80,7 @@ namespace EventManagementApp.Controllers
             EmailDto emaildes = new EmailDto
             {
                 Body = "Registration successfully ^_^",
-                Subject= "Registration successfully"
+                Subject = "Registration successfully"
             };
 
             if (userObj == null)
@@ -104,7 +104,7 @@ namespace EventManagementApp.Controllers
             await _authContext.AddAsync(userObj);
             await _authContext.SaveChangesAsync();
 
-           // SendEmail(emaildes,userObj.Email);
+            // SendEmail(emaildes,userObj.Email);
 
             return Ok(new
             {
@@ -114,7 +114,7 @@ namespace EventManagementApp.Controllers
         }
 
         //for send email
-        private void SendEmail(EmailDto request,string em)
+        private void SendEmail(EmailDto request, string em)
         {
             var email = new MimeMessage();
             email.From.Add(MailboxAddress.Parse(_config.GetSection("EmailUsername").Value));
@@ -208,7 +208,7 @@ namespace EventManagementApp.Controllers
 
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         public async Task<ActionResult<User>> GetAllUsers()
         {
@@ -260,12 +260,12 @@ namespace EventManagementApp.Controllers
             string from = _config["EmailSettings:From"];
             var emailmodel = new EmailModel(email, "ResetPassword", EmailBody.EmailStringBody(email, emailToken));
             _emailRepo.SendEmail(emailmodel);
-            _authContext.Entry(user).State=EntityState.Modified;
+            _authContext.Entry(user).State = EntityState.Modified;
             await _authContext.SaveChangesAsync();
             return Ok(new
             {
-                StatusCode=200,
-                message="update successfully"
+                StatusCode = 200,
+                message = "update successfully"
             });
         }
 
@@ -284,12 +284,13 @@ namespace EventManagementApp.Controllers
             }
             var tokenCode = user.ResetPasswordToken;
             DateTime emailTokenExpire = user.ResetPasswordExpire;
-            if(tokenCode != resetPasswordDto.EmailToken || emailTokenExpire < DateTime.Now)
+            if (tokenCode != resetPasswordDto.EmailToken || emailTokenExpire < DateTime.Now)
             {
-                return BadRequest(new {
-                    StatusCode=400,
-                    Message="not exist"
-                    
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "not exist"
+
                 });
             }
             user.Password = PasswordHasher.HashPassword(resetPasswordDto.NewPassword);
